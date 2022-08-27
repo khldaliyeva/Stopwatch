@@ -12,11 +12,30 @@ class MainActivity : AppCompatActivity() {
     private var running = false  // Is the stopwatch running?
     private var offset: Long = 0  // The base offset for the stopwatch
 
+    // Add key Strings for use with the Bundle
+    companion object {
+        private const val OFFSET_KEY = "offset"
+        private const val RUNNING_KEY = "running"
+        private const val BASE_KEY = "base"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         stopwatch = findViewById(R.id.stopwatch)
+
+        // Restore the previous state
+        if (savedInstanceState != null) {
+            offset = savedInstanceState.getLong(OFFSET_KEY)
+            running = savedInstanceState.getBoolean(RUNNING_KEY)
+            if (running) {
+                stopwatch.base = savedInstanceState.getLong(BASE_KEY)
+                stopwatch.start()
+            } else {
+                setBaseTime()
+            }
+        }
 
         val btnStart = findViewById<Button>(R.id.btnStart)
         btnStart.setOnClickListener {
@@ -41,6 +60,13 @@ class MainActivity : AppCompatActivity() {
             offset = 0
             setBaseTime()
         }
+    }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        savedInstanceState.putLong(OFFSET_KEY, offset)
+        savedInstanceState.putBoolean(RUNNING_KEY, running)
+        savedInstanceState.putLong(BASE_KEY, stopwatch.base)
+        super.onSaveInstanceState(savedInstanceState)
     }
 
     private fun setBaseTime() {
